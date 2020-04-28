@@ -104,79 +104,29 @@
     </el-card>
 
     <!--添加用户 dialog 弹框-->
-    <el-dialog
-      title="添加用户"
-      :visible.sync="addDialogVisible"
-      width="40%"
-      @close="addDiologClosed"
-    >
-      <!--内容-->
-      <span>
-        <el-form
-          :model="addForm"
-          :rules="addFormRules"
-          ref="addFormRef"
-          label-width="100px"
-        >
-          <el-form-item label="用户名" prop="username">
-            <el-input v-model="addForm.username"></el-input>
-          </el-form-item>
-          <el-form-item label="密码" prop="password">
-            <el-input type="password" v-model="addForm.password"></el-input>
-          </el-form-item>
-          <el-form-item label="邮箱" prop="email">
-            <el-input v-model="addForm.email"></el-input>
-          </el-form-item>
-          <el-form-item label="手机" prop="phone">
-            <el-input v-model="addForm.phone"></el-input>
-          </el-form-item>
-        </el-form>
-      </span>
-      <!--按钮-->
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="addDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="addUser">确 定</el-button>
-      </span>
-    </el-dialog>
-
+    <AddUserDialog :show.sync="addDialogVisible"></AddUserDialog>
     <!--修改用户对话框-->
-    <el-dialog title="修改用户" :visible.sync="editDialogVisible" width="50%">
-      <span>这是一段信息</span>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="editDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="editDialogVisible = false"
-          >确 定</el-button
-        >
-      </span>
-    </el-dialog>
+    <EditDialog
+      :show.sync="editDialogVisible"
+      :edit-form="editForm"
+    ></EditDialog>
   </div>
 </template>
 
 <script>
 import Breadcrumb from '../Breadcrumb'
 import Pagination from '../Pagination'
+import AddUserDialog from './AddUserDialog'
+import EditDialog from './EditDialog'
 export default {
   name: 'Users',
   components: {
     Breadcrumb,
-    Pagination
+    Pagination,
+    AddUserDialog,
+    EditDialog
   },
   data() {
-    // 自定义验证规则
-    let checkEmail = (rule, value, callback) => {
-      const regEmail = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/
-      if (regEmail.test(value)) {
-        return callback()
-      }
-      callback(new Error('请输入合法的邮箱'))
-    }
-    let checkPhone = (rule, value, callback) => {
-      const regPhone = /^(0|86|17951)?(13[0-9]|15[0123456789]|17[678]|18[0-9]|14[57])[0-9]{8}$/
-      if (regPhone.test(value)) {
-        return callback()
-      }
-      callback(new Error('请输入正确的手机号码'))
-    }
     return {
       queryInfo: {
         query: '',
@@ -189,34 +139,10 @@ export default {
       total: 0,
       // 添加用户对话框显示隐藏
       addDialogVisible: false,
-      // 添加用户表单
-      addForm: {
-        username: '',
-        password: '',
-        email: '',
-        phone: ''
-      },
-      addFormRules: {
-        username: [
-          { required: true, message: '请输入用户名', trigger: 'blur' },
-          { min: 3, max: 10, message: '长度在 3 到 10 个字符', trigger: 'blur' }
-        ],
-        password: [
-          { required: true, message: '请输入密码', trigger: 'blur' },
-          { min: 6, max: 20, message: '长度在 6 到 20 个字符', trigger: 'blur' }
-        ],
-        email: [
-          { required: true, message: '请输入邮箱', trigger: 'blur' },
-          { validator: checkEmail, trigger: 'blur' }
-        ],
-        phone: [
-          { required: true, message: '请输入手机号码', trigger: 'blur' },
-          { validator: checkPhone, trigger: 'blur' }
-        ]
-      },
 
       // 修改用户
-      editDialogVisible: false
+      editDialogVisible: false,
+      editForm: {}
     }
   },
   methods: {
@@ -254,34 +180,15 @@ export default {
       this.$message.success('更新用户状态成功!')
     },
 
-    // 添加用户对话框关闭事件
-    addDiologClosed() {
-      this.$refs.addFormRef.resetFields()
-    },
-
-    addUser() {
-      this.$refs.addFormRef.validate(async valid => {
-        if (!valid) {
-          return
-        }
-        // 发起请求
-        const { data: res } = await this.$http.post('users', this.addForm)
-        console.log(res)
-        if (res.meta.status !== 201) {
-          return this.$message.error('用户添加失败!')
-        }
-        this.$message.success('用户添加成功!')
-        this.addDialogVisible = false
-        this.getUsersList()
-      })
-    },
-
     async showEditorDialog(id) {
       // console.log(id)
       const { data: res } = await this.$http.get('users/' + id)
+      console.log(res)
+      this.editForm = res.data
       this.editDialogVisible = true
     }
   },
+
   created() {
     this.getUsersList()
   }
