@@ -76,7 +76,11 @@
               placement="top"
               :enterable="false"
             >
-              <el-button type="danger" icon="el-icon-delete"></el-button>
+              <el-button
+                @click="removeUserById(scope.row.id)"
+                type="danger"
+                icon="el-icon-delete"
+              ></el-button>
             </el-tooltip>
             <!--分配角色-->
             <el-tooltip
@@ -186,6 +190,25 @@ export default {
       console.log(res)
       this.editForm = res.data
       this.editDialogVisible = true
+    },
+
+    // 删除用户
+    async removeUserById(id) {
+      const confirmResult = await this.$confirm(
+        '此操作将永久删除该用户, 是否继续?',
+        '提示',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }
+      ).catch(err => err)
+      console.log(confirmResult)
+      if (confirmResult !== 'confirm') return this.$message.info('取消删除!')
+      const { data: res } = await this.$http.delete('users/' + id)
+      if (res.meta.status !== 200) return this.$message.error('删除用户失败!')
+      this.$message.success('删除用户成功!')
+      this.getUsersList()
     }
   },
 
