@@ -59,7 +59,6 @@ export default {
         return this.$message.error('获取导航菜单数据失败!')
       }
       this.menuList = res.data
-      console.log(this.menuList)
     }
   },
   mounted() {

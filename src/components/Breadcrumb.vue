@@ -4,7 +4,7 @@
     <el-breadcrumb separator="/">
       <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
       <el-breadcrumb-item>
-        <a href="#">{{ title }}</a>
+        {{ title }}
       </el-breadcrumb-item>
       <el-breadcrumb-item>{{ subTitle }}</el-breadcrumb-item>
     </el-breadcrumb>
@@ -29,4 +29,8 @@ export default {
 }
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.box {
+  margin-bottom: 20px;
+}
+</style>

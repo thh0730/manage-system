@@ -90,7 +90,11 @@
               placement="top"
               :enterable="false"
             >
-              <el-button type="warning" icon="el-icon-setting"></el-button>
+              <el-button
+                type="warning"
+                icon="el-icon-setting"
+                @click="setRole(scope.row)"
+              ></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -114,6 +118,12 @@
       :show.sync="editDialogVisible"
       :edit-form="editForm"
     ></EditDialog>
+    <!--分配角色对话框-->
+    <SetRole
+      :show.sync="setRoleDialogVisible"
+      :userInfo="userInfo"
+      :rolesList="rolesList"
+    ></SetRole>
   </div>
 </template>
 
@@ -122,13 +132,15 @@ import Breadcrumb from '../Breadcrumb'
 import Pagination from '../Pagination'
 import AddUserDialog from './AddUserDialog'
 import EditDialog from './EditDialog'
+import SetRole from './SetRole'
 export default {
   name: 'Users',
   components: {
     Breadcrumb,
     Pagination,
     AddUserDialog,
-    EditDialog
+    EditDialog,
+    SetRole
   },
   data() {
     return {
@@ -146,7 +158,13 @@ export default {
 
       // 修改用户
       editDialogVisible: false,
-      editForm: {}
+      editForm: {},
+      // 分配角色控制显示隐藏
+      setRoleDialogVisible: false,
+      // 需要被分配角色的用户信息
+      userInfo: {},
+      // 所有角色的数据列表
+      rolesList: []
     }
   },
   methods: {
@@ -187,7 +205,7 @@ export default {
     async showEditorDialog(id) {
       // console.log(id)
       const { data: res } = await this.$http.get('users/' + id)
-      console.log(res)
+      // console.log(res)
       this.editForm = res.data
       this.editDialogVisible = true
     },
@@ -209,6 +227,19 @@ export default {
       if (res.meta.status !== 200) return this.$message.error('删除用户失败!')
       this.$message.success('删除用户成功!')
       this.getUsersList()
+    },
+
+    // 分配角色
+    async setRole(info) {
+      this.userInfo = info
+
+      //在展示对话框之前获取所有角色数据
+      const { data: res } = await this.$http.get('roles')
+      if (res.meta.status !== 200)
+        return this.$message.error('获取角色列表失败!')
+      this.rolesList = res.data
+      // 展示对话框
+      this.setRoleDialogVisible = true
     }
   },
 

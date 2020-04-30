@@ -28,6 +28,16 @@ const routes = [
         path: '/users',
         name: 'Users',
         component: () => import('../components/user/Users')
+      },
+      {
+        path: '/rights',
+        name: 'Rights',
+        component: () => import('../components/rights/Rights')
+      },
+      {
+        path: '/roles',
+        name: 'Roles',
+        component: () => import('../components/rights/Roles')
       }
     ]
   }
